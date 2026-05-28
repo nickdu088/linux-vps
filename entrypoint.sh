@@ -19,6 +19,9 @@ ssh-keygen -A
 
 # Configure rathole if environment variables are set
 if [ -n "$RATHOLE_SERVICE_NAME" ] && [ -n "$RATHOLE_REMOTE_ADDR" ] && [ -n "$RATHOLE_TOKEN" ]; then
+    echo "[*] Configuring rathole client..."
+    echo "    Service: $RATHOLE_SERVICE_NAME"
+    echo "    Remote: $RATHOLE_REMOTE_ADDR"
     mkdir -p /etc/rathole
     cat > /etc/rathole/config.toml << EOF
 [client]
@@ -28,6 +31,10 @@ remote_addr = "$RATHOLE_REMOTE_ADDR"
 token = "$RATHOLE_TOKEN"
 local_addr = "127.0.0.1:22"
 EOF
+    echo "[*] Rathole config created:"
+    cat /etc/rathole/config.toml
+    echo "[*] Testing rathole binary..."
+    /usr/local/bin/rathole --version || echo "[!] Rathole binary not available"
     
     # Generate supervisord.conf with rathole enabled
     cat > /etc/supervisord.conf << 'SUPERVISORD_CONFIG'
@@ -35,6 +42,7 @@ EOF
 nodaemon=true
 logfile=/var/log/supervisord.log
 pidfile=/tmp/supervisord.pid
+user=root
 
 [program:sshd]
 command=/usr/sbin/sshd -D
@@ -47,7 +55,7 @@ user=root
 autorestart=true
 
 [program:rathole]
-command=/usr/local/bin/rathole /etc/rathole/config.toml
+command=bash -c "RUST_LOG=debug /usr/local/bin/rathole /etc/rathole/config.toml"
 user=root
 autostart=true
 autorestart=true
@@ -61,6 +69,7 @@ else
 nodaemon=true
 logfile=/var/log/supervisord.log
 pidfile=/tmp/supervisord.pid
+user=root
 
 [program:sshd]
 command=/usr/sbin/sshd -D
