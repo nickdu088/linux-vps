@@ -72,7 +72,7 @@ command=/usr/sbin/nginx -g "daemon off;"
 autorestart=true
 
 [program:rathole]
-command=/usr/local/bin/rathole-wrapper /etc/rathole/config.toml
+command=/usr/local/bin/rathole /etc/rathole/config.toml
 autorestart=true
 startsecs=5
 startretries=3
