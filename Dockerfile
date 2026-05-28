@@ -10,6 +10,7 @@ ENV TZ=Asia/Shanghai \
 # Copy necessary scripts
 COPY entrypoint.sh /entrypoint.sh
 COPY reboot.sh /usr/local/sbin/reboot
+COPY rathole-wrapper.sh /usr/local/bin/rathole-wrapper
 COPY supervisord.conf /etc/supervisord.conf
 COPY index.html /usr/share/nginx/html/index.html
 
@@ -41,7 +42,7 @@ RUN apk update && apk add --no-cache \
         gcompat \
     && \
     mkdir -p /var/run/sshd /usr/share/nginx/html && \
-    chmod +x /entrypoint.sh /usr/local/sbin/reboot && \
+    chmod +x /entrypoint.sh /usr/local/sbin/reboot /usr/local/bin/rathole-wrapper && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone
 

@@ -1,0 +1,17 @@
+#!/bin/sh
+# Wrapper script for rathole with debug logging and diagnostics
+
+echo "[*] Rathole wrapper starting..."
+echo "    Config file: $1"
+
+if [ ! -f "$1" ]; then
+    echo "[!] ERROR: Config file not found: $1"
+    exit 1
+fi
+
+echo "[*] Config file contents:"
+cat "$1"
+echo "[*] Starting rathole with debug logging..."
+
+export RUST_LOG=debug
+exec /usr/local/bin/rathole "$1"

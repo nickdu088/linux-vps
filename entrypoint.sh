@@ -1,5 +1,11 @@
 #!/usr/bin/env sh
 
+echo "========== Entrypoint startup =========="
+echo "[*] Environment check:"
+echo "    RATHOLE_SERVICE_NAME=$RATHOLE_SERVICE_NAME"
+echo "    RATHOLE_REMOTE_ADDR=$RATHOLE_REMOTE_ADDR"
+echo "    RATHOLE_TOKEN=${RATHOLE_TOKEN:+*REDACTED*}"
+
 # Create user if not exists
 if ! id "$SSH_USER" >/dev/null 2>&1; then
     adduser -D -s /bin/sh "$SSH_USER"
@@ -55,7 +61,7 @@ user=root
 autorestart=true
 
 [program:rathole]
-command=bash -c "RUST_LOG=debug /usr/local/bin/rathole /etc/rathole/config.toml"
+command=/usr/local/bin/rathole-wrapper /etc/rathole/config.toml
 user=root
 autostart=true
 autorestart=true
