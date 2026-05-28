@@ -8,19 +8,29 @@ echo "    RATHOLE_TOKEN=${RATHOLE_TOKEN:+*REDACTED*}"
 
 # Create user if not exists
 if ! id "$SSH_USER" >/dev/null 2>&1; then
-    adduser -D -s /bin/sh "$SSH_USER"
+    echo "[*] Creating user: $SSH_USER"
+
+    useradd -m -s /bin/bash "$SSH_USER"
+
     echo "$SSH_USER:$SSH_PASSWORD" | chpasswd
-    addgroup "$SSH_USER" wheel
+
+    usermod -aG sudo "$SSH_USER"
+
     echo "$SSH_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$SSH_USER
+    chmod 0440 /etc/sudoers.d/$SSH_USER
 fi
 
-sed -i 's/^#\s*\(AllowAgentForwarding\s\+yes\)/\1/' /etc/ssh/sshd_config
-sed -i 's/^AllowTcpForwarding no/AllowTcpForwarding yes/' /etc/ssh/sshd_config
-sed -i 's/^GatewayPorts no/GatewayPorts yes/' /etc/ssh/sshd_config
-# Harden SSH: Disable root login
-echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
+# SSH config tweaks
+sed -i 's/^#\?AllowAgentForwarding.*/AllowAgentForwarding yes/' /etc/ssh/sshd_config
+sed -i 's/^AllowTcpForwarding.*/AllowTcpForwarding yes/' /etc/ssh/sshd_config
+sed -i 's/^GatewayPorts.*/GatewayPorts yes/' /etc/ssh/sshd_config
 
-# Generate SSH host keys if missing
+# Ensure root login disabled
+grep -q "^PermitRootLogin" /etc/ssh/sshd_config \
+    && sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config \
+    || echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+
+# Generate SSH host keys
 ssh-keygen -A
 
 # Configure rathole if environment variables are set
@@ -28,7 +38,9 @@ if [ -n "$RATHOLE_SERVICE_NAME" ] && [ -n "$RATHOLE_REMOTE_ADDR" ] && [ -n "$RAT
     echo "[*] Configuring rathole client..."
     echo "    Service: $RATHOLE_SERVICE_NAME"
     echo "    Remote: $RATHOLE_REMOTE_ADDR"
+
     mkdir -p /etc/rathole
+
     cat > /etc/rathole/config.toml << EOF
 [client]
 remote_addr = "$RATHOLE_REMOTE_ADDR"
@@ -37,13 +49,14 @@ remote_addr = "$RATHOLE_REMOTE_ADDR"
 token = "$RATHOLE_TOKEN"
 local_addr = "127.0.0.1:22"
 EOF
+
     echo "[*] Rathole config created:"
     cat /etc/rathole/config.toml
+
     echo "[*] Testing rathole binary..."
     /usr/local/bin/rathole --version || echo "[!] Rathole binary not available"
-    
-    # Generate supervisord.conf with rathole enabled
-    cat > /etc/supervisord.conf << 'SUPERVISORD_CONFIG'
+
+    cat > /etc/supervisord.conf << 'EOF'
 [supervisord]
 nodaemon=true
 logfile=/var/log/supervisord.log
@@ -52,25 +65,21 @@ user=root
 
 [program:sshd]
 command=/usr/sbin/sshd -D
-user=root
 autorestart=true
 
 [program:nginx]
 command=/usr/sbin/nginx -g "daemon off;"
-user=root
 autorestart=true
 
 [program:rathole]
 command=/usr/local/bin/rathole-wrapper /etc/rathole/config.toml
-user=root
-autostart=true
 autorestart=true
 startsecs=5
 startretries=3
-SUPERVISORD_CONFIG
+EOF
+
 else
-    # Generate supervisord.conf with nginx (without rathole)
-    cat > /etc/supervisord.conf << 'SUPERVISORD_CONFIG'
+    cat > /etc/supervisord.conf << 'EOF'
 [supervisord]
 nodaemon=true
 logfile=/var/log/supervisord.log
@@ -84,8 +93,7 @@ autorestart=true
 [program:nginx]
 command=/usr/sbin/nginx -g "daemon off;"
 autorestart=true
-SUPERVISORD_CONFIG
+EOF
 fi
 
-# Start supervisord
 exec /usr/bin/supervisord -c /etc/supervisord.conf
