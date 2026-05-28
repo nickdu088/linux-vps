@@ -45,8 +45,6 @@ autorestart=true
 command=/usr/sbin/nginx -g "daemon off;"
 user=root
 autorestart=true
-stderr_logfile=/var/log/nginx.err.log
-stdout_logfile=/var/log/nginx.out.log
 
 [program:rathole]
 command=/usr/local/bin/rathole /etc/rathole/config.toml
@@ -55,8 +53,6 @@ autostart=true
 autorestart=true
 startsecs=5
 startretries=3
-stderr_logfile=/var/log/rathole.err.log
-stdout_logfile=/var/log/rathole.out.log
 SUPERVISORD_CONFIG
 else
     # Generate supervisord.conf with nginx (without rathole)
@@ -73,8 +69,6 @@ autorestart=true
 [program:nginx]
 command=/usr/sbin/nginx -g "daemon off;"
 autorestart=true
-stderr_logfile=/var/log/nginx.err.log
-stdout_logfile=/var/log/nginx.out.log
 SUPERVISORD_CONFIG
 fi
 
