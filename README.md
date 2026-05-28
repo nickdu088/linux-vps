@@ -7,7 +7,7 @@ This project provides a custom Docker image based on Alpine Linux, designed to s
 ```
 docker run -d \
   --name debian \
-  -p 80:80 \
+  -p 2222:22 \
   -e SSH_USER=debian \
   -e SSH_PASSWORD='debian!23' \
   ghcr.io/nickdu088/linux-vps:latest
