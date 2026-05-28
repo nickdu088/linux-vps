@@ -40,6 +40,12 @@ pidfile=/tmp/supervisord.pid
 command=/usr/sbin/sshd -D
 autorestart=true
 
+[program:nginx]
+command=/usr/sbin/nginx -g "daemon off;"
+autorestart=true
+stderr_logfile=/var/log/nginx.err.log
+stdout_logfile=/var/log/nginx.out.log
+
 [program:rathole]
 command=/usr/local/bin/rathole /etc/rathole/config.toml
 autostart=true
@@ -48,7 +54,7 @@ stderr_logfile=/var/log/rathole.err.log
 stdout_logfile=/var/log/rathole.out.log
 SUPERVISORD_CONFIG
 else
-    # Generate supervisord.conf without rathole
+    # Generate supervisord.conf with nginx (without rathole)
     cat > /etc/supervisord.conf << 'SUPERVISORD_CONFIG'
 [supervisord]
 nodaemon=true
@@ -58,6 +64,12 @@ pidfile=/tmp/supervisord.pid
 [program:sshd]
 command=/usr/sbin/sshd -D
 autorestart=true
+
+[program:nginx]
+command=/usr/sbin/nginx -g "daemon off;"
+autorestart=true
+stderr_logfile=/var/log/nginx.err.log
+stdout_logfile=/var/log/nginx.out.log
 SUPERVISORD_CONFIG
 fi
 
