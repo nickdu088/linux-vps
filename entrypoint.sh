@@ -1,25 +1,32 @@
 #!/usr/bin/env sh
 
 # Create user if not exists
-# Create user if not exists
 if ! id "$SSH_USER" >/dev/null 2>&1; then
-    useradd -m -s /bin/bash "$SSH_USER"
+    groupadd -f sudo
 
-    # set password
+    mkdir -p /home/$SSH_USER
+
+    useradd -m -s /bin/bash "$SSH_USER" 2>/dev/null || true
+
     echo "$SSH_USER:$SSH_PASSWORD" | chpasswd
 
-    # sudo group
     usermod -aG sudo "$SSH_USER"
 
-    # sudo rules
     echo "$SSH_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$SSH_USER
     chmod 0440 /etc/sudoers.d/$SSH_USER
 
-    # ensure home directory exists (explicit safety)
-    mkdir -p /home/$SSH_USER
+    touch /home/$SSH_USER/.hushlogin
+
+    # safe bashrc guard (avoid crash loops)
+    if ! grep -q "safe container shell" /home/$SSH_USER/.bashrc 2>/dev/null; then
+    cat >> /home/$SSH_USER/.bashrc << 'EOF'
+# safe container shell
+[ -z "$PS1" ] && return
+EOF
+    fi
+
     chown -R $SSH_USER:$SSH_USER /home/$SSH_USER
 
-    # force correct shell (important for SSH login stability)
     usermod -s /bin/bash $SSH_USER
 fi
 
