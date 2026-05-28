@@ -23,9 +23,9 @@ if [ -n "$RATHOLE_REMOTE_ADDR" ] && [ -n "$RATHOLE_TOKEN" ]; then
     cat > /etc/rathole/config.toml << EOF
 [client]
 remote_addr = "$RATHOLE_REMOTE_ADDR"
-token = "$RATHOLE_TOKEN"
 
 [client.services.sshd]
+token = "$RATHOLE_TOKEN"
 local_addr = "127.0.0.1:22"
 EOF
     
