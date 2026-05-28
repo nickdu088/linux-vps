@@ -40,6 +40,7 @@ RUN apk update && apk add --no-cache \
         unzip \
         bind-tools \
         gcompat \
+        libc6-compat \
     && \
     mkdir -p /var/run/sshd /usr/share/nginx/html && \
     chmod +x /entrypoint.sh /usr/local/sbin/reboot /usr/local/bin/rathole-wrapper && \
