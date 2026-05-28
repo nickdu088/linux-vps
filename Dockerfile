@@ -38,6 +38,7 @@ RUN apk update && apk add --no-cache \
         shadow \
         unzip \
         bind-tools \
+        gcompat \
     && \
     mkdir -p /var/run/sshd /usr/share/nginx/html && \
     chmod +x /entrypoint.sh /usr/local/sbin/reboot && \
