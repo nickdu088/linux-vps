@@ -43,6 +43,12 @@ RUN apk update && apk add --no-cache \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone
 
+# Install rathole
+RUN curl -sSL https://github.com/rapiz1/rathole/releases/latest/download/rathole-x86_64-unknown-linux-musl.zip -o /tmp/rathole.zip && \
+    unzip -o /tmp/rathole.zip -d /usr/local/bin && \
+    chmod +x /usr/local/bin/rathole && \
+    rm /tmp/rathole.zip
+
 EXPOSE 22 80
 
 ENTRYPOINT ["/entrypoint.sh"]

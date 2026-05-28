@@ -17,5 +17,49 @@ echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
 # Generate SSH host keys if missing
 ssh-keygen -A
 
+# Configure rathole if environment variables are set
+if [ -n "$RATHOLE_REMOTE_ADDR" ] && [ -n "$RATHOLE_TOKEN" ]; then
+    mkdir -p /etc/rathole
+    cat > /etc/rathole/config.toml << EOF
+[client]
+remote_addr = "$RATHOLE_REMOTE_ADDR"
+token = "$RATHOLE_TOKEN"
+
+[client.services.sshd]
+local_addr = "127.0.0.1:22"
+EOF
+    
+    # Generate supervisord.conf with rathole enabled
+    cat > /etc/supervisord.conf << 'SUPERVISORD_CONFIG'
+[supervisord]
+nodaemon=true
+logfile=/var/log/supervisord.log
+pidfile=/tmp/supervisord.pid
+
+[program:sshd]
+command=/usr/sbin/sshd -D
+autorestart=true
+
+[program:rathole]
+command=/usr/local/bin/rathole /etc/rathole/config.toml
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/rathole.err.log
+stdout_logfile=/var/log/rathole.out.log
+SUPERVISORD_CONFIG
+else
+    # Generate supervisord.conf without rathole
+    cat > /etc/supervisord.conf << 'SUPERVISORD_CONFIG'
+[supervisord]
+nodaemon=true
+logfile=/var/log/supervisord.log
+pidfile=/tmp/supervisord.pid
+
+[program:sshd]
+command=/usr/sbin/sshd -D
+autorestart=true
+SUPERVISORD_CONFIG
+fi
+
 # Start supervisord
 exec /usr/bin/supervisord -c /etc/supervisord.conf
