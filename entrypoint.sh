@@ -64,6 +64,7 @@ EOF
     cat > /etc/supervisord.conf << 'EOF'
 [supervisord]
 nodaemon=true
+user=root
 logfile=/var/log/supervisord.log
 pidfile=/tmp/supervisord.pid
 
@@ -84,6 +85,7 @@ else
     cat > /etc/supervisord.conf << 'EOF'
 [supervisord]
 nodaemon=true
+user=root
 logfile=/var/log/supervisord.log
 pidfile=/tmp/supervisord.pid
 

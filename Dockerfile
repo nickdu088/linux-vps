@@ -15,7 +15,6 @@ ARG RATHOLE_VERSION=0.5.0
 COPY entrypoint.sh /entrypoint.sh
 COPY reboot.sh /usr/local/sbin/reboot
 COPY supervisord.conf /etc/supervisord.conf
-COPY index.html /usr/share/nginx/html/index.html
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
