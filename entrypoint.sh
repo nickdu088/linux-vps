@@ -18,13 +18,13 @@ echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
 ssh-keygen -A
 
 # Configure rathole if environment variables are set
-if [ -n "$RATHOLE_REMOTE_ADDR" ] && [ -n "$RATHOLE_TOKEN" ]; then
+if [ -n "$RATHOLE_SERVICE_NAME" ] && [ -n "$RATHOLE_REMOTE_ADDR" ] && [ -n "$RATHOLE_TOKEN" ]; then
     mkdir -p /etc/rathole
     cat > /etc/rathole/config.toml << EOF
 [client]
 remote_addr = "$RATHOLE_REMOTE_ADDR"
 
-[client.services.sshd]
+[client.services.$RATHOLE_SERVICE_NAME]
 token = "$RATHOLE_TOKEN"
 local_addr = "127.0.0.1:22"
 EOF
