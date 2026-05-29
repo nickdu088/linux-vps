@@ -69,7 +69,7 @@ logfile=/var/log/supervisord.log
 pidfile=/tmp/supervisord.pid
 
 [program:sshd]
-command=/usr/sbin/sshd -D -e -ddd
+command=/usr/sbin/sshd -D
 autorestart=true
 
 [program:nginx]
