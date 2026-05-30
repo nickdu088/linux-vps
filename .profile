@@ -22,8 +22,8 @@ export HISTCONTROL=ignoredups:erasedups
 export HISTSIZE=1000
 export HISTFILESIZE=2000
 
-# ========== Source .ashrc or .bashrc ==========
+# ========== Source .bashrc ==========
 # Make sure interactive settings apply even in login shells
-if [ -f "$HOME/.ashrc" ]; then
-    . "$HOME/.ashrc"
+if [ -f "$HOME/.bashrc" ]; then
+    . "$HOME/.bashrc"
 fi
