@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Create user if not exists
 if ! id "$SSH_USER" >/dev/null 2>&1; then
@@ -15,15 +15,8 @@ if ! id "$SSH_USER" >/dev/null 2>&1; then
     echo "$SSH_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$SSH_USER
     chmod 0440 /etc/sudoers.d/$SSH_USER
 
-    touch /home/$SSH_USER/.hushlogin
-
-    # safe bashrc guard (avoid crash loops)
-    if ! grep -q "safe container shell" /home/$SSH_USER/.bashrc 2>/dev/null; then
-    cat >> /home/$SSH_USER/.bashrc << 'EOF'
-# safe container shell
-[ -z "$PS1" ] && return
-EOF
-    fi
+    cp /root/.profile /home/$SSH_USER/.profile
+    cp /root/.bashrc /home/$SSH_USER/.bashrc
 
     chown -R $SSH_USER:$SSH_USER /home/$SSH_USER
 
@@ -42,7 +35,6 @@ grep -q "^PermitRootLogin" /etc/ssh/sshd_config \
 
 echo "UsePAM yes" >> /etc/ssh/sshd_config
 echo "PermitTTY yes" >> /etc/ssh/sshd_config
-echo "PrintLastLog yes" >> /etc/ssh/sshd_config
 
 # Generate SSH host keys
 ssh-keygen -A
