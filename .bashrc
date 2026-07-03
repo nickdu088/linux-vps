@@ -1,4 +1,4 @@
-# ~/.ashrc – Enhanced for usability and appearance
+# ~/.bashrc – Enhanced for usability and appearance
 
 # ========== Prompt ==========
 # Colorful PS1: user@host:path$
@@ -41,7 +41,7 @@ alias df='df -h'
 alias du='du -h'
 
 # ========== History Settings ==========
-export HISTFILE="$HOME/.ash_history"
+export HISTFILE="$HOME/.bash_history"
 export HISTSIZE=500
 export HISTFILESIZE=1000
 
